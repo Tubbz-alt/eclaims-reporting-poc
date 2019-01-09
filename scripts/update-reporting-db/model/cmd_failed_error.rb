@@ -1,0 +1,2 @@
+class CmdFailedError < RuntimeError
+end
