@@ -11,13 +11,10 @@ class App
   attr_accessor :logger, :config, :csv_importer, :s3_downloader
 
   def initialize(args={})
-    self.logger = args[:logger] || Logger.new(STDOUT)
-    self.config = args[:config] = Config.from_env_vars
-    self.csv_importer = args[:csv_importer] || CSVImporter.new(logger: logger)
-    self.s3_downloader = args[:s3_downloader] ||= S3Downloader.new(
-      bucket_name: config.s3.fetch(:bucket_name),
-      region: config.s3.fetch(:bucket_region)
-    )
+    self.logger = args[:logger] || default_logger
+    self.config = args[:config] || default_config
+    self.csv_importer = args[:csv_importer] || default_csv_importer
+    self.s3_downloader = args[:s3_downloader] || default_s3_downloader
   end
 
   def download(s3_path)
@@ -37,7 +34,7 @@ class App
     ].join(' ')
   end
 
-  def import_csv(file_path: file_path, model_name: model_name)
+  def import_csv(file_path:, model_name:)
     logger.info "Importing file #{file_path} to model #{model_name}"
     csv_importer.import_csv(file_path: file_path, model_name: model_name)
   end
@@ -48,5 +45,24 @@ class App
       report_lines_in(file_path)
       import_csv(file_path: file_path, model_name: model_name)
     end
+  end
+
+  def default_logger
+    Logger.new(STDOUT)
+  end
+
+  def default_s3_downloader
+    S3Downloader.new(
+      bucket_name: config.s3.fetch(:bucket_name),
+      region: config.s3.fetch(:bucket_region)
+    )
+  end
+
+  def default_csv_importer
+    CSVImporter.new(logger: logger)
+  end
+
+  def default_config
+    Config.from_env_vars
   end
 end
