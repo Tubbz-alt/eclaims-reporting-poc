@@ -15,79 +15,79 @@ ActiveRecord::Schema.define(version: 0) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "claim_lines", id: false, force: :cascade do |t|
-    t.string "claim-doc-id", limit: 64
-    t.string "claim-reference-number", limit: 32
-    t.string "pa-name", limit: 8
-    t.string "ip-name", limit: 1024
-    t.string "ip-code", limit: 8
-    t.string "type", limit: 32
-    t.float "fund"
-    t.float "public"
-    t.float "fric-cap"
-    t.float "fric-rev"
-    t.float "frpp-cap"
-    t.float "frpp-rev"
-    t.float "fund-cap-intervention-rate"
-    t.float "fund-rev-intervention-rate"
-    t.float "fund-tot-intervention-rate"
-    t.float "public-cap-intervention-rate"
-    t.float "public-rev-intervention-rate"
-    t.float "public-tot-intervention-rate"
-    t.float "private-cap-intervention-rate"
-    t.float "private-rev-intervention-rate"
-    t.float "private-tot-intervention-rate"
-    t.float "eligible-cap-expenditure"
-    t.float "eligible-rev-expenditure"
-    t.float "total-cap-expenditure"
-    t.float "total-rev-expenditure"
-    t.float "fund-cap-expenditure"
-    t.float "fund-rev-expenditure"
-    t.float "public-cap-expenditure"
-    t.float "public-rev-expenditure"
-    t.float "private-cap-expenditure"
-    t.float "private-rev-expenditure"
+  create_table :claim_lines, id: false, force: :cascade do |t|
+    t.string :claim_doc_id, limit: 64
+    t.string :claim_reference_number, limit: 32
+    t.string :pa_name, limit: 8
+    t.string :ip_name, limit: 1024
+    t.string :ip_code, limit: 8
+    t.string :type, limit: 32
+    t.float :fund
+    t.float :public
+    t.float :fric_cap
+    t.float :fric_rev
+    t.float :frpp_cap
+    t.float :frpp_rev
+    t.float :fund_cap_intervention_rate
+    t.float :fund_rev_intervention_rate
+    t.float :fund_tot_intervention_rate
+    t.float :public_cap_intervention_rate
+    t.float :public_rev_intervention_rate
+    t.float :public_tot_intervention_rate
+    t.float :private_cap_intervention_rate
+    t.float :private_rev_intervention_rate
+    t.float :private_tot_intervention_rate
+    t.float :eligible_cap_expenditure
+    t.float :eligible_rev_expenditure
+    t.float :total_cap_expenditure
+    t.float :total_rev_expenditure
+    t.float :fund_cap_expenditure
+    t.float :fund_rev_expenditure
+    t.float :public_cap_expenditure
+    t.float :public_rev_expenditure
+    t.float :private_cap_expenditure
+    t.float :private_rev_expenditure
   end
 
-  create_table "claims", id: false, force: :cascade do |t|
-    t.string "claim-doc-id", limit: 64
-    t.string "claim-reference-number", limit: 32
-    t.datetime "created-date"
-    t.datetime "submitted-date"
-    t.datetime "claim-date"
-    t.integer "claim-month"
-    t.string "claim-schedule", limit: 16
-    t.string "claim-type", limit: 16
-    t.integer "claim-year"
-    t.boolean "nil-claim"
-    t.integer "claim-quarter"
-    t.string "claim-status", limit: 32
-    t.string "ec-payment-status", limit: 512
-    t.date "claim-start-date"
-    t.date "claim-end-date"
-    t.datetime "claim-submitted-on"
-    t.string "claim-submitted-by", limit: 1024
-    t.string "claim-submitted-doc-id", limit: 64
-    t.datetime "claim-approved-on"
-    t.string "claim-approved-by", limit: 1024
-    t.string "claim-approved-doc-id", limit: 64
-    t.datetime "claim-authorised-on"
-    t.string "claim-authorised-by", limit: 1024
-    t.string "claim-authorised-doc-id", limit: 64
-    t.date "claim-payment-on"
-    t.string "claim-payment-by", limit: 1024
-    t.string "claim-payment-doc-id", limit: 64
-    t.string "certification-status", limit: 64
-    t.float "certification-exchange-rate"
-    t.date "certification-date"
-    t.string "certification-batch-ref", limit: 32
-    t.string "certification-batch-doc-id", limit: 64
-    t.string "certification-batch-status", limit: 64
-    t.date "certification-batch-updated"
-    t.integer "intervention-rate"
-    t.float "offset-total"
-    t.float "offset-capital"
-    t.float "offset-revenue"
+  create_table :claims, id: false, force: :cascade do |t|
+    t.string :claim_doc_id, limit: 64
+    t.string :claim_reference_number, limit: 32
+    t.datetime :created_date
+    t.datetime :submitted_date
+    t.datetime :claim_date
+    t.integer :claim_month
+    t.string :claim_schedule, limit: 16
+    t.string :claim_type, limit: 16
+    t.integer :claim_year
+    t.boolean :nil_claim
+    t.integer :claim_quarter
+    t.string :claim_status, limit: 32
+    t.string :ec_payment_status, limit: 512
+    t.date :claim_start_date
+    t.date :claim_end_date
+    t.datetime :claim_submitted_on
+    t.string :claim_submitted_by, limit: 1024
+    t.string :claim_submitted_doc_id, limit: 64
+    t.datetime :claim_approved_on
+    t.string :claim_approved_by, limit: 1024
+    t.string :claim_approved_doc_id, limit: 64
+    t.datetime :claim_authorised_on
+    t.string :claim_authorised_by, limit: 1024
+    t.string :claim_authorised_doc_id, limit: 64
+    t.date :claim_payment_on
+    t.string :claim_payment_by, limit: 1024
+    t.string :claim_payment_doc_id, limit: 64
+    t.string :certification_status, limit: 64
+    t.float :certification_exchange_rate
+    t.date :certification_date
+    t.string :certification_batch_ref, limit: 32
+    t.string :certification_batch_doc_id, limit: 64
+    t.string :certification_batch_status, limit: 64
+    t.date :certification_batch_updated
+    t.integer :intervention_rate
+    t.float :offset_total
+    t.float :offset_capital
+    t.float :offset_revenue
   end
 
 end
