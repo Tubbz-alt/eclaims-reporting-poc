@@ -26,10 +26,11 @@ class App
   end
 
   def report_lines_in(file_path)
+    lines_in_file = ShellAdapter.output_of( 'wc', '-l', file_path )
     logger.info [
       file_path,
       '-',
-      ShellAdapter.output_of( 'wc', '-l', file_path ),
+      lines_in_file,
       'lines'
     ].join(' ')
   end
