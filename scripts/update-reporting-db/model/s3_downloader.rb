@@ -2,9 +2,9 @@ class S3Downloader
   attr_accessor :region, :bucket_name, :client
 
   def initialize( args={} )
-    self.region = args.fetch(:region)
-    self.bucket_name = args.fetch(:bucket_name)
-    self.client = Aws::S3::Client.new(region: region)
+    self.region = args.fetch(:region, nil)
+    self.bucket_name = args.fetch(:bucket_name, nil)
+    self.client = region ? Aws::S3::Client.new(region: region) : Aws::S3::Client.new
   end
 
   def download( target_path:, object_key: )
