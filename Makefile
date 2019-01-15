@@ -26,4 +26,4 @@ apply: init
 destroy: init
 	terraform destroy -var-file=${env_dir}/terraform.tfvars | grep -v 'Still destroying...'
 
-.PHONY := init plan apply destroy sandbox dev
+.PHONY : init plan apply destroy sandbox dev

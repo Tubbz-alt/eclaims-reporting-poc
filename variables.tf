@@ -34,8 +34,8 @@ variable "glue_database_name" {
   default = "mhclg-reporting-test-s3-crawler-db"
 }
 
-variable "glue_connection_db_password" {}
-variable "glue_connection_db_username" {}
+# variable "glue_connection_db_password" {}
+# variable "glue_connection_db_username" {}
 
 variable "s3_bucket_name" {}
 
