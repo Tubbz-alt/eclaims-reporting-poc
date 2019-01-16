@@ -1,4 +1,50 @@
-provider "aws" {}
+provider "aws" {
+  region = "${var.aws_region}"
+}
+
+# Read the properties of the VPC with the given ID
+# and we can then calculate CIDR blocks from that
+data "aws_vpc" "given" {
+  id = "${var.vpc_id}"
+}
+
+data "aws_subnet" "subnet_1" {
+  vpc_id = "${var.vpc_id}"
+
+  filter {
+    name   = "tag:Name"
+    values = ["MHCLG-TESTRDS-PrivateA"]
+  }
+}
+
+data "aws_subnet" "subnet_2" {
+  vpc_id = "${var.vpc_id}"
+
+  filter {
+    name   = "tag:Name"
+    values = ["MHCLG-TESTRDS-PrivateB"]
+  }
+}
+
+data "aws_subnet" "subnet_3" {
+  vpc_id = "${var.vpc_id}"
+
+  filter {
+    name   = "tag:Name"
+    values = ["MHCLG-TESTRDS-PrivateC"]
+  }
+}
+
+resource "aws_db_subnet_group" "default" {
+  name        = "main_subnet_group"
+  description = "Our main group of subnets"
+
+  subnet_ids = [
+    "${data.aws_subnet.subnet_1.id}",
+    "${data.aws_subnet.subnet_2.id}",
+    "${data.aws_subnet.subnet_3.id}",
+  ]
+}
 
 # Target RDS instance for the reporting data
 resource "aws_db_instance" "rds_reporting_data" {
@@ -6,6 +52,7 @@ resource "aws_db_instance" "rds_reporting_data" {
   storage_type           = "gp2"
   engine                 = "postgres"
   instance_class         = "${var.rds_instance_type}"
+  identifier             = "eclaimsreportingpocdb${var.env}"
   name                   = "eclaimsreportingpocdb${var.env}"
   username               = "${var.rds_master_username}"
   password               = "${var.rds_master_password}"
@@ -13,30 +60,26 @@ resource "aws_db_instance" "rds_reporting_data" {
   vpc_security_group_ids = ["${aws_security_group.ingress_on_all_ports_from_within_sg.id}"]
   skip_final_snapshot    = "true"
 
+  db_subnet_group_name = "${aws_db_subnet_group.default.id}"
+
   tags = {
     "production"  = "${var.is_production}"
     "project"     = "${var.project_name}"
     "environment" = "${var.env}"
+    "Name"        = "eclaimsreportingpocdb${var.env}"
   }
 }
 
 # TODO
 # No way to automatically create the actual postgres database
-# within the instance, or the user we need for the glue crawler
-#
+# within the instance (or the db user we need for the glue crawler)
+# - maybe via remote_exec on an ec2 instance?
 
 # S3 Bucket to hold the source data - we assume this is setup
 # outside of terraform
 data "aws_s3_bucket" "source_data" {
   bucket = "${var.s3_bucket_name}"
 }
-
-# Glue needs a VPC endpoint to read data from the bucket
-# resource "aws_vpc_endpoint" "s3_vpc_endpoint" {
-#   vpc_id          = "${var.vpc_id}"
-#   service_name    = "com.amazonaws.${var.aws_region}.s3"
-#   route_table_ids = []
-# }
 
 # A security group that allows ingress on all ports
 # from anything within that same SG. The SG must be applied to the
@@ -66,6 +109,82 @@ resource "aws_security_group" "ingress_on_all_ports_from_within_sg" {
     "environment" = "${var.env}"
   }
 }
+
+# This code copied from
+# https://github.com/binarymist/aws-docker-host/blob/master/tf/instance_creation/instance.tf
+# get the most recent Canonical Ubuntu AMI
+# data "aws_ami" "ubuntu" {
+#   most_recent = true
+#
+#   filter {
+#     name   = "name"
+#     values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+#   }
+#
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+#
+#   owners = ["099720109477"] # Canonical
+# }
+#
+# resource "aws_instance" "dockerhost" {
+#   ami           = "${data.aws_ami.ubuntu.id}"
+#   instance_type = "${var.aws_instance_type}"
+#
+#   tags {
+#     Name = "dockerhost"
+#   }
+#
+#   vpc_security_group_ids = ["${aws_security_group.ingress_on_all_ports_from_within_sg.id}"]
+#
+#   # Copy public key to instance.
+#   # key_name = "${var.aws_key_name}"
+#
+#   # connection {
+#   #   type = "ssh"
+#   #
+#   #   #agent = false
+#   #   user        = "${var.instance_user}"
+#   #   private_key = "${file("${var.key_pair["private_key_file_path"]}")}"
+#   #   timeout     = "3m"
+#   # }
+#   provisioner "file" {
+#     # setup /etc/update-reporting-db.env with required env vars
+#     destination = "${var.local_env_file_path}"
+#
+#     content = <<EOF
+# DATABASE_URL=postgres://${var.rds_master_username}:${var.rds_master_password}@${aws_db_instance.rds_reporting_data.endpoint}/${aws_db_instance.rds_reporting_data.name}?pool=5
+# S3_BUCKET_NAME=${var.s3_bucket_name}
+# S3_BUCKET_REGION=${var.s3_bucket_region}
+# EOF
+#   }
+#   provisioner "remote-exec" {
+#     inline = [
+#       "echo \"##### Performing apt-get update #####\"",
+#       "sudo apt-get update",
+#       "echo \"##### Installing packages #####\"",
+#       "sudo apt-get install -y docker",
+#       "sudo service docker start",
+#     ]
+#   }
+#   provisioner "remote-exec" {
+#     inline = [
+#       "docker pull ${var.docker_image_name}",
+#       "docker run --env-file ${var.local_env_file_path} --name ${var.container_name} ${var.docker_image_name}",
+#     ]
+#   }
+# }
+
+
+# Glue needs a VPC endpoint to read data from the bucket
+# resource "aws_vpc_endpoint" "s3_vpc_endpoint" {
+#   vpc_id          = "${var.vpc_id}"
+#   service_name    = "com.amazonaws.${var.aws_region}.s3"
+#   route_table_ids = []
+# }
+
 
 # QuickSight needs a security group adding to the RDS instance that grants
 # ingress on all ports to anything within the CIDR range used by QuickSight
