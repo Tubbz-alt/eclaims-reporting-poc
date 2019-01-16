@@ -4,4 +4,8 @@ require_relative './app_setup'
 
 require 'model/app'
 
-App.new.run!
+def main
+  App.new.run!
+end
+
+main
