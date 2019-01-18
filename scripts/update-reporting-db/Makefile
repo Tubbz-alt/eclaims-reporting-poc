@@ -26,7 +26,11 @@ clean:
 	rm -rf lib/
 	rm ./pg_ext.so
 
+invoke_local:
+	sam local invoke --no-event --env-vars ./.env.json
+
 setup_env:
+	$(eval export AWS_REGION=eu-west-1)
 	$(eval export FUNCTION_NAME=UpdateReportingDBFunction)
 	$(eval export ROLE_ARN=arn:aws:iam::090682378586:role/MHCLG-Lambda-Role)
 
@@ -37,23 +41,23 @@ deploy: setup_env
 			--zip-file fileb://deploy.zip \
 			--runtime ruby2.5 \
 			--role ${ROLE_ARN} \
-			--timeout 20 \
-			--handler lambda_handler.main
+			--timeout 60 \
+			--handler run_lambda.main
 
 update: setup_env
 	aws lambda update-function-code \
-			--region ap-southeast-2 \
+			--region ${AWS_REGION} \
 			--function-name ${FUNCTION_NAME} \
 			--zip-file fileb://deploy.zip
 
 delete: setup_env
 	aws lambda delete-function \
-			--region ap-southeast-2 \
+			--region ${AWS_REGION} \
 			--function-name ${FUNCTION_NAME}
 
 invoke:
 	aws lambda invoke \
-		--region ap-southeast-2 \
+		--region ${AWS_REGION} \
 
 
 # Commands that start with underscore are run *inside* the container.

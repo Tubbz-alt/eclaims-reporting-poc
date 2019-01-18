@@ -6,4 +6,5 @@ coverage
 vendor
 .env.json
 *.so
-
+lib
+deploy.zip
