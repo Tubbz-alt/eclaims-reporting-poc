@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Outputs:
+  UpdateReportingDBFunction:
+    Description: UpdateReportingDB Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - UpdateReportingDBFunction
+      - Arn
+Resources:
+  UpdateReportingDBFunction:
+    Properties:
+      CodeUri: s3://marklogic-postgress-db/6baf09f41daf4e9375b1531e66046579
+      FunctionName: UpdateReportingDB
+      Handler: lambda_handler.debug_native_gems
+      Runtime: ruby2.5
+      Timeout: 30
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31

@@ -2,4 +2,8 @@
 coverage
 .env
 *.env
+.bundle
+vendor
+.env.json
+*.so
 
