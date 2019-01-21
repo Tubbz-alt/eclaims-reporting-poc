@@ -1,5 +1,6 @@
-# Copied from https://github.com/stevenringo/lambda-ruby-pg-nokogiri/blob/master/Makefile
+# lots of this opied from https://github.com/stevenringo/lambda-ruby-pg-nokogiri/blob/master/Makefile
 # With huge thanks to https://github.com/stevenringo
+ndef = $(if $(value $(1)),,$(error $(1) not set))
 
 image:
 	docker build -t lambda-ruby2.5-postgresql10 -f lambda.dockerfile .
@@ -50,15 +51,34 @@ update: setup_env
 			--function-name ${FUNCTION_NAME} \
 			--zip-file fileb://deploy.zip
 
+# given an ENV_VAR_STRING in the form:
+# Variables={KeyName1=string,KeyName2=string}
+# or the JSON equivalent,
+# apply those env vars to the latest version of
+# the Lambda function
+# TODO: replace all of these API calls with Terraform resources,
+# so that the parameters can be calculated by TF
+update_env_vars_and_config: setup_env
+	$(call ndef,ENV_VAR_STRING)  			# $$ENV_VAR_STRING is required
+	$(call ndef,SUBNET_IDS)  					# $$SUBNET_IDS is required
+	$(call ndef,SECURITY_GROUP_IDS)  	# $$SECURITY_GROUP_IDS is required
+	aws lambda update-function-configuration \
+		--region ${AWS_REGION} \
+		--function-name ${FUNCTION_NAME} \
+		--environment '${ENV_VAR_STRING}' \
+		--vpc-config SubnetIds=${SUBNET_IDS},SecurityGroupIds=${SECURITY_GROUP_IDS}
+
 delete: setup_env
 	aws lambda delete-function \
 			--region ${AWS_REGION} \
 			--function-name ${FUNCTION_NAME}
 
-invoke:
+invoke: setup_env
+	$(call ndef,OUTFILE)  # $$OUTFILE is required
 	aws lambda invoke \
 		--region ${AWS_REGION} \
-
+		--function-name ${FUNCTION_NAME} \
+		${OUTFILE}
 
 # Commands that start with underscore are run *inside* the container.
 _install:
