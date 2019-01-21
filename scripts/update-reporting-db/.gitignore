@@ -4,7 +4,7 @@ coverage
 *.env
 .bundle
 vendor
-.env.json
+.env.*
 *.so
 lib
 deploy.zip
