@@ -8,7 +8,7 @@ class S3Downloader
   end
 
   def download( target_path:, object_key: )
-    puts "AWS_ACCESS_KEY: #{ENV['AWS_ACCESS_KEY']}, AWS_SECRET_ACCESS_KEY: #{ENV['AWS_SECRET_ACCESS_KEY']}"
+    puts "AWS_ACCESS_KEY_ID: #{ENV['AWS_ACCESS_KEY_ID']}, AWS_SECRET_ACCESS_KEY: #{ENV['AWS_SECRET_ACCESS_KEY']}"
     client.get_object(
       bucket: self.bucket_name,
       key: object_key,

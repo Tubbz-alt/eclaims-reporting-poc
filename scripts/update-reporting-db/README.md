@@ -62,6 +62,12 @@ You can also pass env vars on the command line like so:
 S3_BUCKET_NAME=my-bucket S3_BUCKET_REGION=us-east-1 bundle exec ruby run.rb
 ```
 
+### locally via sam
+
+```
+# From the scripts/update-reporting-db directory:
+make invoke_local
+```
 
 ### locally via docker
 
@@ -69,12 +75,11 @@ To build the docker image:
 
 ```
 # From the scripts/update-reporting-db directory:
-docker build -t (some convenient tag - e.g. 'mhclg-reporting-poc') .
+make build install
 ```
-
 To run the image as a container:
 ```
-docker run --env-file (env file path) (image tag)
+make ru
 ```
 or if you prefer to set individual env vars explicitly:
 ```

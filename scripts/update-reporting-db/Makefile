@@ -1,4 +1,4 @@
-# lots of this opied from https://github.com/stevenringo/lambda-ruby-pg-nokogiri/blob/master/Makefile
+# lots of this copied from https://github.com/stevenringo/lambda-ruby-pg-nokogiri/blob/master/Makefile
 # With huge thanks to https://github.com/stevenringo
 ndef = $(if $(value $(1)),,$(error $(1) not set))
 
@@ -15,9 +15,9 @@ test:
 	docker run --rm -it -v $$PWD:/var/task -w /var/task lambda-ruby2.5-postgresql10 make _test
 
 run:
-	docker run --rm -it -v $$PWD:/var/task -w /var/task lambda-ruby2.5-postgresql10 make _run
+	docker run --rm -it -v $$PWD:/var/task -w /var/task --env-file=./.docker.local.env lambda-ruby2.5-postgresql10 make _run
 
-zip:
+zip: install
 	rm -f deploy.zip
 	zip -q -r deploy.zip . -x .git/\*
 
@@ -28,7 +28,7 @@ clean:
 	rm ./pg_ext.so
 
 invoke_local:
-	sam local invoke --no-event --env-vars ./.env.json
+	SKIP_BUNDLER_SETUP=true sam local invoke --no-event --env-vars ./.env.json
 
 setup_env:
 	$(eval export AWS_REGION=eu-west-1)
@@ -78,18 +78,19 @@ invoke: setup_env
 	aws lambda invoke \
 		--region ${AWS_REGION} \
 		--function-name ${FUNCTION_NAME} \
+		--log-type Tail \
 		${OUTFILE}
 
 # Commands that start with underscore are run *inside* the container.
 _install:
 	bundle config --local build.pg --with-pg-config=/usr/pgsql-10/bin/pg_config
 	bundle config --local silence_root_warning true
-	bundle install --path vendor/bundle --clean
+	bundle install --path vendor/bundle --clean --deployment
 	mkdir -p /var/task/lib
 	cp -a /usr/pgsql-10/lib/*.so.* /var/task/lib/
 
 _test:
-	ruby -e "require 'lambda_handler'; puts debug_native_gems(event: nil, context: nil)"
+	ruby -e "require 'run_lambda'; puts debug_native_gems(event: nil, context: nil)"
 
 _run:
-	ruby -e "require 'lambda_handler'; puts main(event: nil, context: nil)"
+	ruby -e "require 'run_lambda'; puts main(event: nil, context: nil)"

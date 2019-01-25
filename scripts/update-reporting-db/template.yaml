@@ -13,9 +13,10 @@ Resources:
       Environment:
         Variables:
           AWS_PROFILE:
-          AWS_ACCESS_KEY:
+          AWS_ACCESS_KEY_ID:
           AWS_SECRET_ACCESS_KEY:
           DATABASE_URL:
+          SKIP_BUNDLER_SETUP:
           SKIP_DOTENV:
           S3_BUCKET_NAME:
           S3_BUCKET_REGION:
