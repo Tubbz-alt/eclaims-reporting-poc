@@ -61,7 +61,7 @@ GEM
     minitest (5.11.3)
     nokogiri (1.10.0)
       mini_portile2 (~> 2.4.0)
-    pg (1.1.3)
+    pg (1.1.4)
     rack (2.0.6)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -77,6 +77,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.19.0, < 2.0)
     rake (12.0.0)
+    rb-readline (0.5.5)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -112,8 +113,9 @@ DEPENDENCIES
   aws-sdk-s3 (~> 1)
   byebug
   dotenv
-  pg
+  pg (>= 1.1.4)
   rake
+  rb-readline
   rspec
   simplecov
   standalone_migrations

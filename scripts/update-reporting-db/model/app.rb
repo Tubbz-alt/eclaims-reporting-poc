@@ -42,10 +42,15 @@ class App
 
   def run!
     config.file_model_map.each do |filename, model_name|
-      file_path = download(filename)
-      report_lines_in(file_path)
-      import_csv(file_path: file_path, model_name: model_name)
+      download_and_import_file!(filename: filename, model_name: model_name)
     end
+  end
+
+  def download_and_import_file!(filename:, model_name: nil)
+    model_name ||= config.file_model_map[filename]
+    file_path = download(filename)
+    report_lines_in(file_path)
+    import_csv(file_path: file_path, model_name: model_name)
   end
 
   def default_logger

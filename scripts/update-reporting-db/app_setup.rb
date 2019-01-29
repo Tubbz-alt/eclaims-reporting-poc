@@ -10,7 +10,7 @@ puts "ENV['SKIP_DOTENV']=#{ENV['SKIP_DOTENV']}"
 unless ENV['SKIP_DOTENV']
   puts "loading dotenv"
   require 'dotenv'
-  Dotenv.load
+  Dotenv.load(ENV['DOTENV_FILE'] || '.env')
 end
 
 require 'active_record'

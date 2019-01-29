@@ -16,6 +16,7 @@ Resources:
           AWS_ACCESS_KEY_ID:
           AWS_SECRET_ACCESS_KEY:
           DATABASE_URL:
+          SCHEMA:
           SKIP_BUNDLER_SETUP:
           SKIP_DOTENV:
           S3_BUCKET_NAME:

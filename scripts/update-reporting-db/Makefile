@@ -2,20 +2,28 @@
 # With huge thanks to https://github.com/stevenringo
 ndef = $(if $(value $(1)),,$(error $(1) not set))
 
+DOCKER_COMMAND=docker run --rm -it -v $$PWD:/var/task --env-file=./.docker.local.env -w /var/task lambda-ruby2.5-postgresql10
+
 image:
 	docker build -t lambda-ruby2.5-postgresql10 -f lambda.dockerfile .
 
 shell:
-	docker run --rm -it -v $$PWD:/var/task -w /var/task lambda-ruby2.5-postgresql10
+	${DOCKER_COMMAND}
 
 install:
-	docker run --rm -it -v $$PWD:/var/task -w /var/task lambda-ruby2.5-postgresql10 make _install
+	${DOCKER_COMMAND} make _install
 
 test:
-	docker run --rm -it -v $$PWD:/var/task -w /var/task lambda-ruby2.5-postgresql10 make _test
+	${DOCKER_COMMAND} make _test
 
 run:
-	docker run --rm -it -v $$PWD:/var/task -w /var/task --env-file=./.docker.local.env lambda-ruby2.5-postgresql10 make _run
+	${DOCKER_COMMAND} make _run
+
+console:
+	${DOCKER_COMMAND} make _console
+
+run_migrations:
+	${DOCKER_COMMAND} make _run_migrations
 
 zip: install
 	rm -f deploy.zip
@@ -28,14 +36,14 @@ clean:
 	rm ./pg_ext.so
 
 invoke_local:
-	SKIP_BUNDLER_SETUP=true sam local invoke --no-event --env-vars ./.env.json
+	SKIP_BUNDLER_SETUP=true sam local invoke --env-vars ./.env.json
 
 setup_env:
 	$(eval export AWS_REGION=eu-west-1)
 	$(eval export FUNCTION_NAME=UpdateReportingDBFunction)
 	$(eval export ROLE_ARN=arn:aws:iam::090682378586:role/MHCLG-Lambda-Role)
 
-deploy: setup_env
+deploy: setup_env zip
 	aws lambda create-function \
 			--region ${AWS_REGION} \
 			--function-name ${FUNCTION_NAME} \
@@ -45,7 +53,7 @@ deploy: setup_env
 			--timeout 60 \
 			--handler run_lambda.main
 
-update: setup_env
+update: setup_env zip
 	aws lambda update-function-code \
 			--region ${AWS_REGION} \
 			--function-name ${FUNCTION_NAME} \
@@ -90,7 +98,16 @@ _install:
 	cp -a /usr/pgsql-10/lib/*.so.* /var/task/lib/
 
 _test:
-	ruby -e "require 'run_lambda'; puts debug_native_gems(event: nil, context: nil)"
+	ruby -e "require 'run_lambda'; puts dump_params(event: nil, context: nil)"
 
 _run:
 	ruby -e "require 'run_lambda'; puts main(event: nil, context: nil)"
+
+_run_migrations:
+	ruby -e "require 'run_lambda'; puts main(event: 'run_migrations', context: nil)"
+
+_console: _docker_env
+	bundle exec irb
+
+_docker_env:
+	$(eval export DOTENV_FILE=.docker.local.env)

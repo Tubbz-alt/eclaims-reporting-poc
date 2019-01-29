@@ -79,7 +79,7 @@ make build install
 ```
 To run the image as a container:
 ```
-make ru
+make run
 ```
 or if you prefer to set individual env vars explicitly:
 ```

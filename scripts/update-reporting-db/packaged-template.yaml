@@ -11,7 +11,7 @@ Resources:
     Properties:
       CodeUri: s3://marklogic-postgress-db/6baf09f41daf4e9375b1531e66046579
       FunctionName: UpdateReportingDB
-      Handler: lambda_handler.debug_native_gems
+      Handler: lambda_handler.main
       Runtime: ruby2.5
       Timeout: 30
     Type: AWS::Serverless::Function
