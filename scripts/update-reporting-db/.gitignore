@@ -2,4 +2,9 @@
 coverage
 .env
 *.env
-
+.bundle
+vendor
+.env.*
+*.so
+lib
+deploy.zip

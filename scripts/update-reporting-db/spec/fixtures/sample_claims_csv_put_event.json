@@ -1,0 +1,17 @@
+{
+  "Records": [
+    {
+      "s3": {
+        "object": {
+          "key": "csv/claims.csv"
+        },
+        "bucket": {
+          "name": "marklogic-postgress-db"
+        }
+      },
+      "awsRegion": "eu-west-1",
+      "eventName": "ObjectCreated:Put",
+      "eventSource": "aws:s3"
+    }
+  ]
+}

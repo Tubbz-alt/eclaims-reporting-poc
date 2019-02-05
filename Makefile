@@ -26,4 +26,19 @@ apply: init
 destroy: init
 	terraform destroy -var-file=${env_dir}/terraform.tfvars | grep -v 'Still destroying...'
 
-.PHONY := init plan apply destroy sandbox dev
+build-lambda:
+	cd scripts/update-reporting-db
+	rm -rf ./vendor/bundle
+	# need to build native extensions within a docker container that's as close
+	# as possible to the ultimate lambda runtime
+	docker run --rm -v "$PWD":/var/task lambci/lambda:build-ruby2.5 \
+		yum install postgresql postgresql-devel && \
+		cd scripts/update-reporting-db && \
+		gem install bundler && \
+		bundle install --deployment
+
+run-lambda:
+	cd scripts/update-reporting-db
+	sam local invoke --no-event --env-vars=./.env.json
+
+.PHONY : init plan apply destroy sandbox dev build-lambda _install _test

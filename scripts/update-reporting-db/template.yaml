@@ -1,0 +1,30 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+
+Resources:
+  UpdateReportingDBFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: UpdateReportingDB
+      Handler: run_lambda.main
+      Runtime: ruby2.5
+      Timeout: 60
+      Environment:
+        Variables:
+          AWS_PROFILE:
+          AWS_ACCESS_KEY_ID:
+          AWS_SECRET_ACCESS_KEY:
+          DATABASE_URL:
+          SCHEMA:
+          SKIP_BUNDLER_SETUP:
+          SKIP_DOTENV:
+          S3_BUCKET_NAME:
+          S3_BUCKET_REGION:
+Outputs:
+  UpdateReportingDBFunction:
+    Description: UpdateReportingDB Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - UpdateReportingDBFunction
+      - Arn
