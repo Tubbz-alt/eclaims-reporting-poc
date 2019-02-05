@@ -62,7 +62,7 @@ You can also pass env vars on the command line like so:
 S3_BUCKET_NAME=my-bucket S3_BUCKET_REGION=us-east-1 bundle exec ruby run.rb
 ```
 
-### locally via sam
+### locally via sam
 
 ```
 # From the scripts/update-reporting-db directory:
