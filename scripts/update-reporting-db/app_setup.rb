@@ -6,15 +6,14 @@ unless ENV['SKIP_BUNDLER_SETUP']
 end
 require 'aws-sdk-s3'
 
-puts "ENV['SKIP_DOTENV']=#{ENV['SKIP_DOTENV']}"
 unless ENV['SKIP_DOTENV']
-  puts "loading dotenv"
+  dotenv_file = ENV['DOTENV_FILE'] || '.env'
+  puts "loading dotenv from #{dotenv_file}"
   require 'dotenv'
-  Dotenv.load(ENV['DOTENV_FILE'] || '.env')
+  Dotenv.load(dotenv_file)
 end
 
 require 'active_record'
-puts "ENV['DATABASE_URL']=#{ENV['DATABASE_URL']}"
 ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 
 APP_ROOT = File.dirname(__FILE__)

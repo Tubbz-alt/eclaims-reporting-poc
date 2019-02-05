@@ -13,6 +13,9 @@ shell:
 install:
 	${DOCKER_COMMAND} make _install
 
+spec:
+	${DOCKER_COMMAND} make _spec
+
 test:
 	${DOCKER_COMMAND} make _test
 
@@ -59,6 +62,15 @@ update: setup_env zip
 			--function-name ${FUNCTION_NAME} \
 			--zip-file fileb://deploy.zip
 
+create_s3_invoke_permission: setup_env
+	$(call ndef,S3_BUCKET_NAME)  			# $$S3_BUCKET_NAME is required
+	aws lambda add-permission \
+			--function-name ${FUNCTION_NAME} \
+			--source-arn arn:aws:s3:::${S3_BUCKET_NAME} \
+			--action "lambda:InvokeFunction" \
+			--principal "s3.amazonaws.com" \
+			--statement-id "allow-s3-bucket-to-invoke-lambda"
+
 # given an ENV_VAR_STRING in the form:
 # Variables={KeyName1=string,KeyName2=string}
 # or the JSON equivalent,
@@ -97,13 +109,16 @@ _install:
 	mkdir -p /var/task/lib
 	cp -a /usr/pgsql-10/lib/*.so.* /var/task/lib/
 
-_test:
+_spec: _docker_env
+	bundle exec rspec
+
+_test: _docker_env
 	ruby -e "require 'run_lambda'; puts dump_params(event: nil, context: nil)"
 
-_run:
+_run: _docker_env
 	ruby -e "require 'run_lambda'; puts main(event: nil, context: nil)"
 
-_run_migrations:
+_run_migrations: _docker_env
 	ruby -e "require 'run_lambda'; puts main(event: 'run_migrations', context: nil)"
 
 _console: _docker_env
@@ -111,3 +126,5 @@ _console: _docker_env
 
 _docker_env:
 	$(eval export DOTENV_FILE=.docker.local.env)
+
+.PHONY : spec

@@ -7,9 +7,6 @@ require 'model/s3_downloader'
 require 'model/s3_event'
 
 def main(event:, context:)
-  puts "event: '#{event}'"
-  puts "context: '#{context.inspect}'"
-
   if event.to_s.empty?
     App.new.run!
   elsif event.is_a?(Hash)
